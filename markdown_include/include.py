@@ -28,6 +28,7 @@ import os.path
 from codecs import open
 from markdown.extensions import Extension
 from markdown.preprocessors import Preprocessor
+from mkdocs.utils.meta import get_data
 
 INC_SYNTAX = re.compile(r'([ \t]*)\{!\s*(.+?)\s*!\}')
 HEADING_SYNTAX = re.compile( '^#+' )
@@ -92,10 +93,13 @@ class IncludePreprocessor(Preprocessor):
                         )
                     try:
                         with open(filename, 'r', encoding=self.encoding) as r:
-                            text = r.readlines()
-                            if len(tabs):
-                                text = [tabs+line for line in text]
-                            
+                            text = []
+                            for l in get_data(r.read())[0].split('\n'):
+                                l = l.rstrip('\r')
+                                if len(tabs):
+                                    l = tabs + l
+                                text.append(l)
+
                     except Exception as e:
                         if not self.throwException:
                             print('Warning: could not find file {}. Ignoring '
